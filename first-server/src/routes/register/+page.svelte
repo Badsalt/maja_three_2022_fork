@@ -5,7 +5,7 @@
     /**
      * @type {import('./$types').Errors}
      */
-    export let errors;
+    //export let errors;
 </script>
 
 <h1>Registration page</h1>
@@ -16,7 +16,4 @@
     <input type="text" name="username" id="" />
     <input type="password" name="password" />
     <button>SIGN UP</button>
-    {#if errors?.message}
-        <p>{errors.message}</p>
-    {/if}
 </form>

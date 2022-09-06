@@ -25,6 +25,7 @@ export async function POST({ request }) {
     const db = client.db("test"); // select test db
     const collection = db.collection("users");  // select users collection
 
+    
     // Check if password and username has been sent
     // else throw error with text describing whats wrong
 
@@ -44,27 +45,28 @@ export async function POST({ request }) {
         let usernameIsAvailiable = false;
         let passwordIsSecure = false;
 
-        if(req.username){
+        if(username){
             
-            let result = await collection.findOne({"username": req.username});
-            if(result == null){
+            let result = await collection.findOne({"username": username});
+            if(!result){
                 usernameIsAvailiable = true;
                 console.log("usernameIsAvailiable")
+            } else {
+                console.log("usernameIsNotAvailiable")
             }
               
         } else{
             console.log("Username is empty")
         }
         
-        if(req.password){
-            if(req.password.length > 4 ){
+        if(password){
+            if ( password && password.toString().length > 4 ){
                 console.log("Password is secure")
                 passwordIsSecure = true;
             }
         } else {
             console.log("Password is empty");
  
-            return json("Password is empty");
         }
         
         if(passwordIsSecure && usernameIsAvailiable){
@@ -80,9 +82,7 @@ export async function POST({ request }) {
     }
 
 }
-    }
-}
->>>>>>> e7a92fe1669e3170ab812fc46b6edbcb826d5542:first-server/src/routes/register/+page.server.js
+    
 
 /** @type {import('./$types').Action} */
 export async function DELETE({ request }) {
