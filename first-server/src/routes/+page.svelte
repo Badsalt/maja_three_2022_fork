@@ -18,6 +18,11 @@
 </p>
 
 <form method="POST">
+
+    <input type="text" name="" id="">
+    <input type="password">
+
+
     {#if errors?.test}
         <p>{errors.test}</p>
     {/if}
