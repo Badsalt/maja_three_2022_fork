@@ -4,16 +4,37 @@ import { parse } from 'cookie';
 import * as database from '$lib/database.js';
 import { isJsxSpreadAttribute } from 'typescript';
 
+let registered = false;
 
-/** @type {import('./$types').RequestHandler} */
+/** @type {import('./$types').PageServerLoad} */
+export function load() {
+    return {
+        registered
+    };
+}
+
+
+/** @type {import('./$types').Action} */
 export async function POST({ request }) {
+    const req = await request.formData();
 
-    const req = await request.json();
-
+    const username = req.get("username")
+    const password = req.get("password")
 
     const client = await database.connect(); // Connect to the mongoDB
     const db = client.db("test"); // select test db
     const collection = db.collection("users");  // select users collection
+
+    // Check if password and username has been sent
+    // else throw error with text describing whats wrong
+
+    // Does the username already exist?
+
+    // Is the password too simple?
+
+
+
+    registered = true;
 
     if (req) {
 
@@ -59,17 +80,11 @@ export async function POST({ request }) {
     }
 
 }
+    }
+}
+>>>>>>> e7a92fe1669e3170ab812fc46b6edbcb826d5542:first-server/src/routes/register/+page.server.js
 
-    // const body = { "register - post": "123" }
-
-    // const cookies = parse(request.headers.get('cookie') || '');
-
-    // console.log(cookies)
-
-    // return json(body);
-
-
-/** @type {import('./$types').RequestHandler} */
+/** @type {import('./$types').Action} */
 export async function DELETE({ request }) {
 
     const cookies = parse(request.headers.get('cookie') || '');
@@ -81,6 +96,10 @@ export async function DELETE({ request }) {
 
     const body = { "register - delete": "123" }
 
+    // does a cookie exist for the user id?
+    // in other words, is the user signed in?
 
-    return json(body);
+    // delete account connected to the session cookie.
+
+
 }
