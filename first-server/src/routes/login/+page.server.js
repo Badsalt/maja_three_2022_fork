@@ -117,8 +117,8 @@ export async function POST({ request, setHeaders }) {
         errors: {}
     }
 
-}   
-    
+}
+
 
 /** @type {import('./$types').Action} */
 export async function DELETE({ setHeaders }) {
