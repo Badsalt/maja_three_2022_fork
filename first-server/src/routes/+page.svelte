@@ -1,4 +1,3 @@
-
 <script>
     /** @type {import('./$types').PageServerData} */
     export let data;
@@ -18,20 +17,16 @@
     {data.number}
 </p>
 
-
-
-
 <form method="POST">
-
-    <input type="text" name="" id="">
-    <input type="password">
+    <input type="text" name="" id="" />
+    <input type="password" />
 
     <button>CLICK ME</button>
 </form>
-    {#if errors?.test}
-        <p>{errors.test}</p>
-    {/if}
-    
-    {#if errors?.password}
-        <p>{errors.password}</p>
-    {/if}
+{#if errors?.test}
+    <p>{errors.test}</p>
+{/if}
+
+{#if errors?.password}
+    <p>{errors.password}</p>
+{/if}

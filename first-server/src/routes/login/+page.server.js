@@ -1,21 +1,30 @@
 import { error, json } from '@sveltejs/kit';
 import { parse } from 'cookie';
-
+import { serialize } from 'cookie';
 import * as database from '$lib/database.js';
 import { isJsxSpreadAttribute } from 'typescript';
 
 let registered = "";
+let userLoggedIn = false;
+let user = ""
+let userToken = {
+    id: "secret"
+}
+
 
 /** @type {import('./$types').PageServerLoad} */
 export function load() {
     return {
-        registered
+        registered,
+        userLoggedIn,
+        user
+
     };
 }
 
 
 /** @type {import('./$types').Action} */
-export async function POST({ request }) {
+export async function POST({ request, setHeaders }) {
     const req = await request.formData();
 
     const username = req.get("username")
@@ -40,19 +49,21 @@ export async function POST({ request }) {
         // TODO: Dont just create the account. Validate that the user sent proper stuff
         // The user doesnt already exist & passwords are provided.
 
+
+
         if (username) {
 
             let result = await collection.findOne({ "username": username });
-            if (result) {
+            if (!result) {
                 registered = "Failed";
                 return {
                     errors: {
-                        message: "Username already exsist"
+                        message: "Username not exsist"
                     }
                 }
-
             } else {
-                //console.log("USername is avaavaas")
+                //Username exsist
+                user = username.toString();
             }
 
         } else {
@@ -64,37 +75,29 @@ export async function POST({ request }) {
             }
         }
 
+
         if (password) {
-            if (password && password.toString().length > 4) {
-                //console.log("Password is secure")
-            } else {
-                registered = "Failed";
-                return {
-                    errors: {
-                        message: "Password must be at least 5 chars long"
-                    }
-                }
+            let result = await collection.findOne({ "username": username, "password": password })
+            if (result) {
+                console.log("login - POST : 123")
+                setHeaders({
+                    'set-cookie': serialize('token', userToken.id, {
+                        path: '/',
+                        httpOnly: true,
+                        sameSite: 'strict',
+                        secure: process.env.NODE_ENV === 'production',
+                        maxAge: 120 // two minutes
+                    })
+                });
+
+                registered = "Success";
+                userLoggedIn = true;
             }
         } else {
             registered = "Failed";
             return {
                 errors: {
-                    message: "Password cannot be empty"
-                }
-            }
-        }
-
-        //if no error has been thrown run this
-        registered = "Pending";
-        let result = await collection.insertOne({ "username": username, "password": password });
-        if (result.acknowledged) {
-            registered = "Success";
-
-        } else {
-            registered = "Failed";
-            return {
-                errors: {
-                    message: "Something failed, please try again"
+                    message: "Password is empty"
                 }
             }
         }
@@ -113,15 +116,13 @@ export async function POST({ request }) {
     return {
         errors: {}
     }
-}
 
+}   
+    
 
 /** @type {import('./$types').Action} */
-export async function DELETE({ request }) {
-
-    const cookies = parse(request.headers.get('cookie') || '');
-    //console.log(cookies)
-
+export async function DELETE({ setHeaders }) {
+    console.log("login - delete : 123")
 
     /*     const client = await database.connect();
         const db = client.db("test"); */
@@ -132,6 +133,16 @@ export async function DELETE({ request }) {
     // in other words, is the user signed in?
 
     // delete account connected to the session cookie.
+
+    setHeaders({
+        'set-cookie': serialize('token', "", {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 0 // one minute
+        })
+    });
 
 
 }
