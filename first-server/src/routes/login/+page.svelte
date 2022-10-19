@@ -5,9 +5,7 @@
     /** @type {import('./$types').PageServerData} */
     export let data;
 
-    /**
-     * @type any
-     */
+    /** @type {import('./$types').Errors} */
     export let errors;
 </script>
 

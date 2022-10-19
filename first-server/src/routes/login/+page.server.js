@@ -35,15 +35,6 @@ export async function POST({ request, setHeaders }) {
     const collection = db.collection("users");  // select users collection
 
 
-    // Check if password and username has been sent
-    // else throw error with text describing whats wrong
-
-    // Does the username already exist?
-
-    // Is the password too simple?
-
-
-
     if (req) {
 
         // TODO: Dont just create the account. Validate that the user sent proper stuff
@@ -112,7 +103,7 @@ export async function POST({ request, setHeaders }) {
         }
     }
 
-    //BUG: To be able to use langauge server VS Code
+    //NOTE: To be able to use langauge server VS Code
     return {
         errors: {}
     }
