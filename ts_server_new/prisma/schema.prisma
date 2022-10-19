@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = "mongodb://localhost:27017/test"
+}
+
+model users {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  password String     @unique
+  salt     String     @unique
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  todoList todoList[] @relation()
+  username String     @unique
+}
+
+model todoList {
+  text    String
+  status  Boolean
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  users   users?  @relation(fields: [usersId], references: [id])
+  usersId String? @db.ObjectId
+}
