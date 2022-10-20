@@ -85,7 +85,7 @@ export type UpdateData = {
 
 export type UserData = {
   username: string;
-  _id: string;
+  _id: number;
   password: string;
   salt: string;
   session: string;

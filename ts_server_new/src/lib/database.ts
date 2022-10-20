@@ -1,9 +1,9 @@
 import { redirect } from "@sveltejs/kit";
 import type { MongoClient, ObjectId } from "mongodb";
 import * as crypto from "crypto";
-import type { UserData } from "./user";
+import { User, type UserData } from "./user";
 
-import { PrismaClient, type users } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 // const prisma = new PrismaClient();
 
 export class Database {
@@ -27,7 +27,7 @@ export class Database {
     const client = await this.connect(); // Connect to the mongoDB
 
     if (username) {
-      const result = await client.users.findFirst({
+      const result = await client.user.findFirst({
         where: { username },
         select: { username: true },
       });
@@ -55,13 +55,12 @@ export class Database {
       .pbkdf2Sync(password, salt, 1000, 64, "sha512")
       .toString("hex");
 
-    let result = await client.users.create({
+    let result = await client.user.create({
       data: {
         username,
         salt,
         password,
         session: hash,
-        todoList: [],
       },
     });
 
@@ -85,7 +84,7 @@ export class Database {
 
     //const result = await collection.deleteOne({ _id: userid });
 
-    const result = await client.users.delete({
+    const result = await client.user.delete({
       where: {
         id: userid.toString(),
       },
@@ -104,7 +103,7 @@ export class Database {
   static async getUserData(userid: ObjectId) {
     const client = await this.connect(); // Connect to the mongoDB
 
-    const result = await client.users.findUnique({
+    const result = await client.user.findUnique({
       where: {
         id: userid.toString(),
       },
@@ -124,12 +123,12 @@ export class Database {
   ): Promise<UserData | false> {
     const client = await this.connect(); // Connect to the mongoDB
     // const db = client.db("test"); // select test db
-    // const collection = db.collection("users"); // select users collection
+    // const collection = db.collection("user"); // select user collection
     // const result = await collection.findOne({
     //   username: username,
     // });
 
-    const result = await client.users.findFirst({
+    const result = await client.user.findFirst({
       where: {
         username,
       },
@@ -143,7 +142,7 @@ export class Database {
       password: result.password,
       salt: result.salt,
       session: result.session,
-      todoList: result.todoList,
+      todoList: result,
     };
 
     // Get the unique salt for a particular user
@@ -169,7 +168,7 @@ export class Database {
       //   }
       // );
 
-      const update = await client.users.updateMany({
+      const update = await client.user.updateMany({
         where: {
           username,
         },

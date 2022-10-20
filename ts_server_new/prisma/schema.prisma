@@ -3,20 +3,23 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = "mongodb://localhost:27017/test"
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
-type UsersTodoList {
-  status Boolean
-  text   String
+model Todo {
+  id      Int     @id @default(autoincrement())
+  status  Boolean
+  text    String
+  owner   User    @relation(fields: [ownerId], references: [id])
+  ownerId Int
 }
 
-model users {
-  id       String          @id @default(auto()) @map("_id") @db.ObjectId
+model User {
+  id       Int    @id @default(autoincrement())
   password String
   salt     String
   session  String
-  todoList UsersTodoList[]
+  todos    Todo[]
   username String
 }
