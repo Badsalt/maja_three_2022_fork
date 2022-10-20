@@ -7,19 +7,16 @@ datasource db {
   url      = "mongodb://localhost:27017/test"
 }
 
-model users {
-  id       String     @id @default(auto()) @map("_id") @db.ObjectId
-  password String     @unique
-  salt     String     @unique
-  /// Could not determine type: the field only had null or empty values in the sample set.
-  todoList todoList[] @relation()
-  username String     @unique
+type UsersTodoList {
+  status Boolean
+  text   String
 }
 
-model todoList {
-  text    String
-  status  Boolean
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  users   users?  @relation(fields: [usersId], references: [id])
-  usersId String? @db.ObjectId
+model users {
+  id       String          @id @default(auto()) @map("_id") @db.ObjectId
+  password String
+  salt     String
+  session  String
+  todoList UsersTodoList[]
+  username String
 }

@@ -1,19 +1,17 @@
 import { redirect } from "@sveltejs/kit";
-import { MongoClient, ObjectId } from "mongodb";
+import type { MongoClient, ObjectId } from "mongodb";
 import * as crypto from "crypto";
 import type { UserData } from "./user";
 
-// import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type users } from "@prisma/client";
 // const prisma = new PrismaClient();
 
 export class Database {
-  static databaseConnection: MongoClient;
+  static databaseConnection: PrismaClient;
 
   static async connect() {
     if (!this.databaseConnection) {
-      this.databaseConnection = await MongoClient.connect(
-        "mongodb://localhost:27017/"
-      );
+      this.databaseConnection = new PrismaClient();
       // console.log("First Time"); //mongodb://
     } else {
       // console.log("Reused Time");
@@ -27,16 +25,12 @@ export class Database {
     password: string | undefined
   ): Promise<string | undefined> {
     const client = await this.connect(); // Connect to the mongoDB
-    const db = client.db("test"); // select test db
-    const collection = db.collection("users"); // select users collection
 
     if (username) {
-      //   const result = await client.users.findUnique({
-      //     where: { username },
-      //     select: { username: true },
-      //   });
-
-      const result = await collection.findOne({ username: username });
+      const result = await client.users.findFirst({
+        where: { username },
+        select: { username: true },
+      });
 
       if (result) {
         return "Username alredy exsists";
@@ -61,22 +55,23 @@ export class Database {
       .pbkdf2Sync(password, salt, 1000, 64, "sha512")
       .toString("hex");
 
-    // let result = await client.users.create({
-    //   data: {
-    //     username,
-    //     salt,
-    //     password,
-    //     todoList: [],
-    //   },
-    // });
-
-    const result = await collection.insertOne({
-      username,
-      salt,
-      password: hash,
-      todoList: [],
+    let result = await client.users.create({
+      data: {
+        username,
+        salt,
+        password,
+        session: hash,
+        todoList: [],
+      },
     });
-    if (result.acknowledged) {
+
+    // const result = await collection.insertOne({
+    //   username,
+    //   salt,
+    //   password: hash,
+    //   todoList: [],
+    // });
+    if (result) {
       //TOOD: Set cookie
 
       throw redirect(302, "/");
@@ -87,16 +82,14 @@ export class Database {
 
   static async delete(userid: ObjectId): Promise<string | undefined> {
     const client = await this.connect(); // Connect to the mongoDB
-    const db = client.db("test"); // select test db
-    const collection = db.collection("users"); // select users collection
 
-    const result = await collection.deleteOne({ _id: userid });
+    //const result = await collection.deleteOne({ _id: userid });
 
-    // const result = await client.users.delete({
-    //   where: {
-    //     id: userid.toString(),
-    //   },
-    // });
+    const result = await client.users.delete({
+      where: {
+        id: userid.toString(),
+      },
+    });
 
     if (!result) {
       return "Delete Account Failed";
@@ -110,16 +103,14 @@ export class Database {
   //TODO: get user object
   static async getUserData(userid: ObjectId) {
     const client = await this.connect(); // Connect to the mongoDB
-    const db = client.db("test"); // select test db
-    const collection = db.collection("users"); // select users collection
 
-    // const result = await client.users.findUnique({
-    //   where: {
-    //     id: userid.toString(),
-    //   },
-    // });
+    const result = await client.users.findUnique({
+      where: {
+        id: userid.toString(),
+      },
+    });
 
-    const result = await collection.findOne({ _id: userid });
+    // const result = await collection.findOne({ _id: userid });
 
     if (!result) return false;
 
@@ -132,16 +123,22 @@ export class Database {
     password: string
   ): Promise<UserData | false> {
     const client = await this.connect(); // Connect to the mongoDB
-    const db = client.db("test"); // select test db
-    const collection = db.collection("users"); // select users collection
-    const result = await collection.findOne({
-      username: username,
+    // const db = client.db("test"); // select test db
+    // const collection = db.collection("users"); // select users collection
+    // const result = await collection.findOne({
+    //   username: username,
+    // });
+
+    const result = await client.users.findFirst({
+      where: {
+        username,
+      },
     });
 
     if (!result) return false;
 
     const data: UserData = {
-      _id: result._id.toString(),
+      _id: result.id,
       username: result.username,
       password: result.password,
       salt: result.salt,
@@ -163,14 +160,24 @@ export class Database {
     if (data.password == hash) {
       const session = crypto.randomUUID();
 
-      const update = await collection.updateOne(
-        { username },
-        {
-          $set: {
-            session,
-          },
-        }
-      );
+      // const update = await collection.updateOne(
+      //   { username },
+      //   {
+      //     $set: {
+      //       session,
+      //     },
+      //   }
+      // );
+
+      const update = await client.users.updateMany({
+        where: {
+          username,
+        },
+        data: {
+          session,
+        },
+      });
+
       data.session = session;
       return data;
     } else {
