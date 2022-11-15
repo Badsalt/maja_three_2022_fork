@@ -17,8 +17,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   // }
 
   if (session_ID) {
-    const userid: string | undefined = await User.sessionToUserid(session_ID);
-    if (userid) event.locals.user = await User.read(new ObjectId(userid));
+    const userid: number | undefined = await User.sessionToUserid(session_ID);
+    if (userid) event.locals.user = await User.read(userid);
   }
   // if (username) {
   //   event.locals.username = username;

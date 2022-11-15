@@ -10,9 +10,9 @@
   <input type="text" name="newTodo" placeholder="Add new Todo" required />
   <button type="submit">Add</button>
 </form>
-{#if data?.user && data?.user?.todoList.length > 0}
+{#if data?.user && data?.user?.todos.length > 0}
   <ol>
-    {#each data.user.todoList as item, index}
+    {#each data.user.todos as item, index}
       <item style="display: flex;">
         <form use:enhance action="?/update" method="post" id="updateStatus">
           <input

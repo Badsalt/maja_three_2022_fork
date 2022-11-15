@@ -1,9 +1,7 @@
 import { redirect } from "@sveltejs/kit";
-import type { MongoClient, ObjectId } from "mongodb";
 import * as crypto from "crypto";
-import { User, type UserData } from "./user";
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type User } from "@prisma/client";
 // const prisma = new PrismaClient();
 
 export class Database {
@@ -24,7 +22,7 @@ export class Database {
     username: string | undefined,
     password: string | undefined
   ): Promise<string | undefined> {
-    const client = await this.connect(); // Connect to the mongoDB
+    const client = await this.connect(); // Connect to sqLite
 
     if (username) {
       const result = await client.user.findFirst({
@@ -55,12 +53,15 @@ export class Database {
       .pbkdf2Sync(password, salt, 1000, 64, "sha512")
       .toString("hex");
 
+    const session = crypto.randomUUID();
+
     let result = await client.user.create({
       data: {
         username,
         salt,
-        password,
-        session: hash,
+        password: hash,
+        session,
+        todos: {},
       },
     });
 
@@ -79,14 +80,14 @@ export class Database {
     }
   }
 
-  static async delete(userid: ObjectId): Promise<string | undefined> {
+  static async delete(userid: number): Promise<string | undefined> {
     const client = await this.connect(); // Connect to the mongoDB
 
     //const result = await collection.deleteOne({ _id: userid });
 
     const result = await client.user.delete({
       where: {
-        id: userid.toString(),
+        id: userid,
       },
     });
 
@@ -100,12 +101,12 @@ export class Database {
   //TODO: Update function for user object
 
   //TODO: get user object
-  static async getUserData(userid: ObjectId) {
+  static async getUserData(userid: number) {
     const client = await this.connect(); // Connect to the mongoDB
 
     const result = await client.user.findUnique({
       where: {
-        id: userid.toString(),
+        id: userid,
       },
     });
 
@@ -120,7 +121,7 @@ export class Database {
   static async login(
     username: string,
     password: string
-  ): Promise<UserData | false> {
+  ): Promise<User | false> {
     const client = await this.connect(); // Connect to the mongoDB
     // const db = client.db("test"); // select test db
     // const collection = db.collection("user"); // select user collection
@@ -136,17 +137,8 @@ export class Database {
 
     if (!result) return false;
 
-    const data: UserData = {
-      _id: result.id,
-      username: result.username,
-      password: result.password,
-      salt: result.salt,
-      session: result.session,
-      todoList: result,
-    };
-
     // Get the unique salt for a particular user
-    const salt = data.salt;
+    const salt = result.salt;
 
     // Hash the salt and password with 1000 iterations, 64 length and sha512 digest
     const hash = crypto
@@ -156,7 +148,7 @@ export class Database {
     //console.log(hash);
     //console.log(data.password == hash);
 
-    if (data.password == hash) {
+    if (result.password == hash) {
       const session = crypto.randomUUID();
 
       // const update = await collection.updateOne(
@@ -177,8 +169,8 @@ export class Database {
         },
       });
 
-      data.session = session;
-      return data;
+      result.session = session;
+      return result;
     } else {
       return false;
     }
