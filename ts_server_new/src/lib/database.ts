@@ -1,7 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 import * as crypto from "crypto";
 
-import { PrismaClient, type User } from "@prisma/client";
+import { PrismaClient, type Session, type User } from "@prisma/client";
 // const prisma = new PrismaClient();
 
 export class Database {
@@ -53,37 +53,25 @@ export class Database {
       .pbkdf2Sync(password, salt, 1000, 64, "sha512")
       .toString("hex");
 
-    const session = crypto.randomUUID();
-
     let result = await client.user.create({
       data: {
         username,
         salt,
         password: hash,
-        session,
         todos: {},
+        session: {},
       },
     });
 
-    // const result = await collection.insertOne({
-    //   username,
-    //   salt,
-    //   password: hash,
-    //   todoList: [],
-    // });
     if (result) {
-      //TOOD: Set cookie
-
       throw redirect(302, "/");
     } else {
       return "The server failed to procces the reg, plase try again later";
     }
   }
 
-  static async delete(userid: number): Promise<string | undefined> {
-    const client = await this.connect(); // Connect to the mongoDB
-
-    //const result = await collection.deleteOne({ _id: userid });
+  static async delete(userid: number): Promise<string> {
+    const client = await this.connect(); // Connect to sqlite
 
     const result = await client.user.delete({
       where: {
@@ -136,7 +124,11 @@ export class Database {
     });
 
     if (!result) return false;
-
+    const session = await client.session.findFirst({
+      where: {
+        id: result.id,
+      },
+    });
     // Get the unique salt for a particular user
     const salt = result.salt;
 
@@ -145,31 +137,32 @@ export class Database {
       .pbkdf2Sync(password, salt, 1000, 64, "sha512")
       .toString("hex");
 
-    //console.log(hash);
-    //console.log(data.password == hash);
-
     if (result.password == hash) {
-      const session = crypto.randomUUID();
+      if (result.session) return result;
 
-      // const update = await collection.updateOne(
-      //   { username },
-      //   {
-      //     $set: {
-      //       session,
-      //     },
-      //   }
-      // );
+      const d = new Date();
 
-      const update = await client.user.updateMany({
-        where: {
-          username,
-        },
+      const dateISO = d.toISOString();
+
+      client.session.create({
         data: {
-          session,
+          created_at: d,
+          exprire_at: d,
+          value: crypto.randomUUID(),
+          ownerId: result.id,
         },
       });
 
-      result.session = session;
+      // const update = await client.user.updateMany({
+      //   where: {
+      //     username,
+      //   },
+      //   data: {
+      //     session,
+      //   },
+      // });
+
+      // result.session = session;
       return result;
     } else {
       return false;

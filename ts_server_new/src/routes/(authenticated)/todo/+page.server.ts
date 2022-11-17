@@ -1,4 +1,4 @@
-import { User } from "$lib/user";
+import { User, type UserData } from "$lib/user";
 import { ObjectId } from "mongodb";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -10,36 +10,39 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 export const actions: Actions = {
   update: async ({ request, locals, cookies }) => {
     const form = await request.formData();
-    const newTodo = form.get("newTodo")?.toString();
-    let status = form.get("status")?.toString();
+
+    const status = form.get("status")!.toString();
+
+    const data = JSON.parse(status);
+
     //console.log(form.get("status"));
-    if (newTodo) {
+    if (locals.user && status) {
       User.update(
-        new ObjectId(locals.user?.data._id),
-        { todoList: { text: newTodo, status: false } },
-        false
-      );
-    } else if (status) {
-      //Check if form name exsists.
-      let temp = JSON.parse(status);
-      //console.log(temp);
-      User.update(
-        new ObjectId(locals.user?.data._id),
-        { todoList: { text: temp.text, status: temp.status } },
+        locals.user?.userid,
+        { todoList: { id: data.id, text: data.text, status: data.status } },
         false
       );
     }
 
     //console.log("fff ");
   },
+  create: async ({ request, locals, cookies }) => {
+    const form = await request.formData();
+    const newTodo = form.get("newTodo")!.toString();
+
+    if (locals.user && newTodo) {
+      User.create(locals.user.userid, newTodo);
+    }
+  },
   remove: async ({ request, locals, cookies }) => {
     const form = await request.formData();
-    const text = form.get("removeTodo")?.toString();
+    const _id = form.get("removeTodoID")!.toString();
+    const id = parseInt(_id);
 
-    if (text) {
+    if (id && locals.user) {
       User.update(
-        new ObjectId(locals.user?.data._id),
-        { todoList: { text, status: true } },
+        locals.user?.userid,
+        { todoList: { id, status: true, text: "ss" } },
         true
       );
     }

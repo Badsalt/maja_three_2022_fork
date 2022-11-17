@@ -1,4 +1,4 @@
-import { prisma, type Todo } from "@prisma/client";
+import type { Todo } from "@prisma/client";
 import { Database } from "./database";
 
 export class User {
@@ -18,27 +18,45 @@ export class User {
     //console.log("Update running");'
     if (data.todoList) {
       //console.log(data.todoList.text);
-
-      await collection.updateOne(
-        { _id: userid, "todoList.text": data.todoList.text },
-        { $set: { "todoList.$.status": data.todoList.status } }
-      );
-    }
-    if (remove) {
-      await collection.updateOne(
-        { _id: userid },
-        { $pull: { todoList: { text: data.todoList?.text } } }
-      );
-    } else {
-      await collection.updateOne(
-        { _id: userid },
-        {
-          $addToSet: {
-            todoList: data.todoList,
+      //update status of TOOD
+      await client.user.update({
+        where: {
+          id: userid,
+        },
+        data: {
+          todos: {
+            update: {
+              where: {
+                id: data.todoList.id,
+              },
+              data: {
+                status: data.todoList.status,
+              },
+            },
           },
-        }
-      );
+        },
+      });
+
+      if (remove) {
+        await client.todo.delete({
+          where: {
+            id: data.todoList.id,
+          },
+        });
+      }
     }
+  }
+
+  static async create(userid: number, text: string) {
+    const client = await Database.connect(); // Connect to sqllite
+
+    await client.todo.create({
+      data: {
+        status: false,
+        ownerId: userid,
+        text,
+      },
+    });
   }
 
   static async sessionToUserid(session: string): Promise<number | undefined> {

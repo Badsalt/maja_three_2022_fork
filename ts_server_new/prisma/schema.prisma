@@ -11,15 +11,24 @@ model Todo {
   id      Int     @id @default(autoincrement())
   status  Boolean
   text    String
-  owner   User    @relation(fields: [ownerId], references: [id])
   ownerId Int
+  owner   User    @relation(fields: [ownerId], references: [id])
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  password String @unique
-  salt     String @unique
-  session  String @unique
+  id       Int      @id @default(autoincrement())
+  password String   @unique
+  salt     String   @unique
+  username String   @unique
+  session  Session?
   todos    Todo[]
-  username String @unique
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime
+  exprire_at DateTime
+  value      String
+  ownerId    Int      @unique
+  owner      User     @relation(fields: [ownerId], references: [id])
 }

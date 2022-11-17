@@ -1,6 +1,7 @@
 import { Database } from "$lib/database";
 import { invalid, redirect } from "@sveltejs/kit";
 import { ObjectId } from "mongodb";
+import { loadConfigFromFile } from "vite";
 import type { Actions } from "./$types";
 
 export const actions: Actions = {
@@ -12,9 +13,10 @@ export const actions: Actions = {
   },
   deleteaccount: async ({ request, locals, cookies }) => {
     const form = await request.formData();
-
+    console.log(locals.user?.userid);
+    let message;
     cookies.delete("userid");
-    const message = await Database.delete(new ObjectId(locals.user?.data._id));
+    if (locals.user) message = await Database.delete(locals.user.userid);
     if (message) {
       return invalid(400, { message });
     }

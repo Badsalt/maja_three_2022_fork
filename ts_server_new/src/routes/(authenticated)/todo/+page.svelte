@@ -6,7 +6,7 @@
 </script>
 
 <!-- <input bind:value={} type="text" placeholder="new todo item.." /> -->
-<form use:enhance={(e) => e.form.reset()} action="?/update" method="post">
+<form use:enhance={(e) => e.form.reset()} action="?/create" method="post">
   <input type="text" name="newTodo" placeholder="Add new Todo" required />
   <button type="submit">Add</button>
 </form>
@@ -19,7 +19,11 @@
             type="text"
             name="status"
             hidden
-            value={JSON.stringify({ status: !item.status, text: item.text })}
+            value={JSON.stringify({
+              status: !item.status,
+              text: item.text,
+              id: item.id,
+            })}
           />
           <button class="test" class:checked={item.status} type="submit">
             {#if item.status}
@@ -37,10 +41,10 @@
         >
           <input
             type="text"
-            name="removeTodo"
+            name="removeTodoID"
             hidden
             placeholder="Remove Todo"
-            value={item.text}
+            value={item.id}
           />
 
           <button
@@ -49,7 +53,6 @@
           >
         </form>
       </item>
-      <!-- <span on:click={() => updateTodoList()}>❌</span></item> -->
       <br />
     {/each}
   </ol>
@@ -59,12 +62,6 @@
 
 <br />
 
-<!-- {#each todoList as item, index}
-  <input bind:checked={item.status} type="checkbox" />
-  <span class:checked={item.status}>{item.text}</span>
-  <span on:click={() => removeFromList(index)}>❌</span>
-  <br />
-{/each} -->
 <style>
   .checked {
     text-decoration: line-through;

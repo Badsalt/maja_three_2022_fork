@@ -12,7 +12,11 @@ export const actions: Actions = {
     if (request) {
       if (password && username) {
         const result = await Database.login(username, password);
+
         if (result) {
+          //If session has expire create new session
+          // else change expire date
+
           cookies.set("session_ID", result.session, {
             path: "/",
             httpOnly: true, // optional for now
