@@ -83,7 +83,7 @@ export class User {
         forums: true,
       },
     });
-    console.log(result?.todos);
+    //console.log(result?.todos);
     if (result) return new User(userid, result);
     return null;
   }

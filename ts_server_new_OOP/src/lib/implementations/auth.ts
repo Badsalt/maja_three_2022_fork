@@ -145,7 +145,7 @@ export class SQLiteAuth implements Auth {
         where: { username },
       });
 
-      console.log(result);
+      //console.log(result);
 
       if (!result) {
         return {

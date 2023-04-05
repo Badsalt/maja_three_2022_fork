@@ -25,7 +25,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       event.locals.user = await User.read(userid);
       event.locals.session = session;
     } else {
-      console.log("User is not valid");
+      //console.log("User is not valid");
       event.locals.user = null;
     }
   }
