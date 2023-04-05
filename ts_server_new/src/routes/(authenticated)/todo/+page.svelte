@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { fade } from "svelte/types/runtime/transition";
   import type { PageServerData } from "./$types";
 
   export let data: PageServerData;
@@ -13,7 +14,7 @@
 {#if data?.user && data?.user?.todos.length > 0}
   <ol>
     {#each data.user.todos as item, index}
-      <item style="display: flex;">
+      <item transition:fade style="display: flex;">
         <form use:enhance action="?/update" method="post" id="updateStatus">
           <input
             type="text"

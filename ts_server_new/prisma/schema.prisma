@@ -16,19 +16,43 @@ model Todo {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  password String   @unique
-  salt     String   @unique
-  username String   @unique
-  session  Session?
-  todos    Todo[]
+  id          Int       @id @default(autoincrement())
+  password    String    @unique
+  salt        String    @unique
+  username    String    @unique
+  session     String?   @unique
+  session_try Session?
+  todos       Todo[]
+  forums      Forum[]
+  messages    Message[]
 }
 
 model Session {
   id         Int      @id @default(autoincrement())
-  created_at DateTime
+  created_at DateTime @default(now())
   exprire_at DateTime
   value      String
   ownerId    Int      @unique
   owner      User     @relation(fields: [ownerId], references: [id])
+}
+
+model Forum {
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now())
+  ownerId    Int
+  name       String
+  messages   Message[]
+  Owner      User      @relation(fields: [ownerId], references: [id])
+}
+
+model Message {
+  id       Int  @id @default(autoincrement())
+  author   User @relation(fields: [authorId], references: [id])
+  authorId Int // relation scalar field  (used in the `@relation` attribute above)
+
+  forum     Forum    @relation(fields: [formId], references: [id])
+  formId    Int
+  content   String
+  timestamp DateTime @default(now())
+  own       Boolean?
 }

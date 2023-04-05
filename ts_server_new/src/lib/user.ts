@@ -1,4 +1,5 @@
-import type { Todo } from "@prisma/client";
+import { disableScrollHandling } from "$app/navigation";
+import type { Forum, Message, Todo } from "@prisma/client";
 import { Database } from "./database";
 
 export class User {
@@ -79,6 +80,8 @@ export class User {
       },
       include: {
         todos: true,
+        messages: true,
+        forums: true,
       },
     });
     console.log(result?.todos);
@@ -104,6 +107,8 @@ export type UserData = {
   id: number;
   password: string;
   salt: string;
-  session: string;
+  session: string | null;
   todos: Todo[];
+  forums: Forum[];
+  messages: Message[];
 };

@@ -1,5 +1,5 @@
 import type { Actions } from "./$types";
-import { error, invalid, redirect } from "@sveltejs/kit";
+import { error, fail, redirect } from "@sveltejs/kit";
 import { Database } from "$lib/database.js";
 
 export const actions: Actions = {
@@ -15,10 +15,10 @@ export const actions: Actions = {
     if (request) {
       let message = await Database.register(username, password);
       if (message) {
-        return invalid(400, { message });
+        return fail(400, { message });
       }
     } else {
-      return invalid(400, {
+      return fail(400, {
         message: "Request is empty or password or username is empty",
       });
     }

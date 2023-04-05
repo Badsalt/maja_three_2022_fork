@@ -1,4 +1,4 @@
-import { invalid, redirect } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 import { Database } from "$lib/database";
 
@@ -13,7 +13,7 @@ export const actions: Actions = {
       if (password && username) {
         const result = await Database.login(username, password);
 
-        if (result) {
+        if (result && result.session) {
           //If session has expire create new session
           // else change expire date
 
@@ -26,13 +26,13 @@ export const actions: Actions = {
           });
           throw redirect(302, "/");
         } else {
-          return invalid(400, { message: "Password or username is wrong" });
+          return fail(400, { message: "Password or username is wrong" });
         }
       } else {
-        return invalid(400, { message: "Password or username is empty" });
+        return fail(400, { message: "Password or username is empty" });
       }
     } else {
-      return invalid(400, {
+      return fail(400, {
         message: "Request is empty, please try again later.",
       });
     }

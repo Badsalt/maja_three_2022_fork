@@ -17,6 +17,7 @@ export const actions: Actions = {
 
     //console.log(form.get("status"));
     if (locals.user && status) {
+      //TODO: Prevent adding two todos with same text
       User.update(
         locals.user?.userid,
         { todoList: { id: data.id, text: data.text, status: data.status } },

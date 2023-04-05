@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Todo {
+  id      Int     @id @default(autoincrement())
+  status  Boolean
+  text    String
+  ownerId Int
+  owner   User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  hash     String    @unique
+  salt     String    @unique
+  username String    @unique
+  session  String    @unique
+  forums   Forum[]
+  messages Message[]
+  todos    Todo[]
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  exprire_at DateTime
+  value      String
+  ownerId    Int      @unique
+}
+
+model Forum {
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now())
+  ownerId    Int
+  name       String
+  Owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  messages   Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  authorId  Int
+  formId    Int
+  content   String
+  timestamp DateTime @default(now())
+  own       Boolean?
+  forum     Forum    @relation(fields: [formId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}

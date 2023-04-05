@@ -5,11 +5,48 @@
   export let form: ActionData;
 </script>
 
-<form use:enhance method="POST" action="?/login">
-  <input type="text" name="username" />
-  <input type="passowrd" name="password" />
-  <button>LOGIN</button>
-  {#if form?.message}
-    <p>{form?.message}</p>
-  {/if}
-</form>
+<div class="loginContainer">
+  <form class="loginform" use:enhance method="POST" action="?/login">
+    <h1>Log In</h1>
+    <input type="text" name="username" />
+    <input type="password" autocomplete="on" name="password" />
+    <button autocomplete="on" type="submit">LOGIN</button>
+    {#if form?.message}
+      <p>{form?.message}</p>
+    {/if}
+  </form>
+</div>
+
+<style>
+  .loginContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+  }
+
+  .loginform {
+    display: flex;
+    flex-direction: column;
+    width: 50vw;
+    height: 25wh;
+    background-color: lightgrey;
+    padding: 20px;
+    border-radius: 20px;
+    align-items: center;
+  }
+
+  .loginform input {
+    padding: 10px;
+    margin: 10px;
+    width: 50%;
+  }
+
+  .loginform button {
+    padding: 10px;
+    width: 75%;
+  }
+</style>
