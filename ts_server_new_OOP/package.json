@@ -32,5 +32,8 @@
 		"rehype": "^12.0.1",
 		"rehype-autolink-headings": "^6.1.1",
 		"rehype-slug": "^5.1.0"
-	}
+	},
+	"engines": {
+     "node": ">=18"
+}
 }
