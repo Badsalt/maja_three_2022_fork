@@ -6,7 +6,10 @@ import rehypeAutoLink from "rehype-autolink-headings";
 
 import type { Forum } from "@prisma/client";
 import { forumController } from "$lib/forum";
-import type { WriteMessageRequest } from "$lib/interfaces/forum";
+import type {
+  ForumInclusive,
+  WriteMessageRequest,
+} from "$lib/interfaces/forum";
 
 const remarkPlugins = undefined;
 const rehypePlugins = [
@@ -21,7 +24,7 @@ const rehypePlugins = [
 ];
 
 export const load: PageServerLoad = async ({ params, request, locals }) => {
-  const forum: Forum = await forumController.loadOneForum(params.forum);
+  const forum = await forumController.loadOneForum(params.forum);
 
   return {
     forum,

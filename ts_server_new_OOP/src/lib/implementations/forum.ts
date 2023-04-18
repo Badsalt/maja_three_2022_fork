@@ -1,6 +1,7 @@
 import type {
   AddForumRequest,
   ForumController,
+  ForumInclusive,
   WriteMessageRequest,
 } from "$lib/interfaces/forum";
 import { database, streams } from "$lib/ssr";
@@ -39,7 +40,7 @@ export class forumPage implements ForumController {
     return result;
   }
 
-  async loadOneForum(name: string): Promise<Forum> {
+  async loadOneForum(name: string): Promise<ForumInclusive> {
     const forum = await database.forum.findFirst({
       where: {
         name,
@@ -67,7 +68,7 @@ export class forumPage implements ForumController {
     return forum;
   }
   async writeMessage(data: WriteMessageRequest): Promise<void> {
-    const remarkPlugins = undefined;
+    /*const remarkPlugins = undefined;
     const rehypePlugins = [
       rehypeSlug,
       [
@@ -89,12 +90,12 @@ export class forumPage implements ForumController {
     )?.code
       // https://github.com/pngwn/MDsveX/issues/392
       .replace(/>{@html `<code class="language-/g, '><code class="language-')
-      .replace(/<\/code>`}<\/pre>/g, "</code></pre>");
+      .replace(/<\/code>`}<\/pre>/g, "</code></pre>"); */
 
     const msg = await database.message.create({
       data: {
         formId: data.forum.id,
-        content: markdownMessage ?? data.message,
+        content: data.message,
         authorId: data.user.data.id,
       },
       include: {

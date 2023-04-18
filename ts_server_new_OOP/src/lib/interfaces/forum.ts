@@ -3,7 +3,7 @@
  */
 
 import type { User } from "$lib/user";
-import type { Forum } from "@prisma/client";
+import type { Forum, Message } from "@prisma/client";
 
 export type AddForumRequest = {
   userID: number;
@@ -14,6 +14,17 @@ export type WriteMessageRequest = {
   forum: Forum;
   message: string;
   user: User;
+};
+
+export type ForumInclusive = Forum & {
+  Owner: {
+    username: string;
+  };
+  messages: (Message & {
+    author: {
+      username: string;
+    };
+  })[];
 };
 
 export interface ForumController {
@@ -28,7 +39,7 @@ export interface ForumController {
   /**
    * Returns one Forum contains Messages
    */
-  loadOneForum(name: string): Promise<Forum>; //Return one Forum contains Messages ets
+  loadOneForum(name: string): Promise<ForumInclusive>; //Return one Forum contains Messages ets
 
   writeMessage(data: WriteMessageRequest): Promise<void>; // Write a Message
 
