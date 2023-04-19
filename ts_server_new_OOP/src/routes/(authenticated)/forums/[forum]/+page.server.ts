@@ -10,6 +10,7 @@ import type {
   ForumInclusive,
   WriteMessageRequest,
 } from "$lib/interfaces/forum";
+import { compile } from "mdsvex";
 
 const remarkPlugins = undefined;
 const rehypePlugins = [
@@ -59,7 +60,7 @@ export const actions: Actions = {
     };
 
     await forumController.writeMessage(data);
-    /* const markdownMessage = ( 
+    const markdownMessage = (
       await compile(
         message,
         remarkPlugins,
@@ -89,14 +90,14 @@ export const actions: Actions = {
       },
     });
     //console.log(msg.content)
-
+    /*
     // send the message to all connected clients.
     for (const session in streams) {
       //console.log(session);
-      // send messages to all other streams exept own for this chat 
+      // send messages to all other streams exept own for this chat
       const connection = streams[session];
       if (connection.forum == params.forum && session != locals.session) {
-        // enqueue messages to all streams for this chat 
+        // enqueue messages to all streams for this chat
         connection.controller.enqueue(JSON.stringify(msg));
       }
     } */
