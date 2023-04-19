@@ -60,7 +60,7 @@ export const actions: Actions = {
     };
 
     await forumController.writeMessage(data);
-    const markdownMessage = (
+    /*const markdownMessage = (
       await compile(
         message,
         remarkPlugins,
@@ -70,7 +70,7 @@ export const actions: Actions = {
     )?.code
       // https://github.com/pngwn/MDsveX/issues/392
       .replace(/>{@html `<code class="language-/g, '><code class="language-')
-      .replace(/<\/code>`}<\/pre>/g, "</code></pre>");
+      .replace(/<\/code>`}<\/pre>/g, "</code></pre>"); */
 
     //create message in the database
     const msg = await (
@@ -78,7 +78,7 @@ export const actions: Actions = {
     ).message.create({
       data: {
         formId: forum.id,
-        content: markdownMessage ?? message,
+        content: message,
         authorId: locals.user!.data.id,
       },
       include: {
